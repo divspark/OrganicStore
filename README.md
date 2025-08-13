@@ -1,6 +1,8 @@
 Here’s an updated and polished README for your **Organic Store** project based on the Grow README, adjusted for **Vite + React + Tailwind + TypeScript**:
 
-![Organic Store Screenshot](./OrganicStoreImg.png)
+<p align="center">
+  <img src="./OrganicStoreImg.png" alt="Organic Store Screenshot" width="600">
+</p>
 
 ---
 
