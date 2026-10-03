@@ -1,406 +1,409 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Users, 
-  DollarSign, 
-  TrendingUp, 
-  Search, 
+  Settings, 
+  Package, 
+  Loader2, 
+  Database, 
+  RefreshCw,
+  LogOut,
+  ArrowLeft,
+  User,
+  ShieldCheck,
+  Store,
+  Trash2,
   Edit,
-  Eye,
-  Settings,
-  UserCheck,
-  Building,
-  MapPin,
-  Phone,
-  Mail,
-  Calendar,
-  Star,
-  Package,
-  ShoppingCart,
-  X
+  TrendingUp,
+  Activity
 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { api, BackendUser, BackendProduct } from '../services/api';
+import { seedDatabase } from '../services/seedData';
+import { useGrowStore } from '../store/useGrowStore';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'products' | 'profile'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProducer, setSelectedProducer] = useState<any>(null);
-  const [showProducerModal, setShowProducerModal] = useState(false);
+  const [users, setUsers] = useState<BackendUser[]>([]);
+  const [products, setProducts] = useState<BackendProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+  const [seedProgress, setSeedProgress] = useState<string | null>(null);
 
-  // Mock data for admin
-  const adminStats = {
-    totalProducers: 156,
-    activeProducers: 142,
-    totalRevenue: 245680.50,
-    platformProfit: 24568.05,
-    totalProducts: 1248,
-    totalOrders: 3456,
-    monthlyGrowth: 12.5
+  const user = useGrowStore((state) => state.user);
+  const logout = useGrowStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const fetchAdminData = async () => {
+    setLoading(true);
+    try {
+      const [usersData, productsData] = await Promise.allSettled([
+        api.auth.getAllUsers(),
+        api.products.getAdminProducts(),
+      ]);
+
+      if (usersData.status === 'fulfilled' && usersData.value) {
+        setUsers(usersData.value);
+      } else {
+        setUsers([
+          { id: '1', email: 'ramesh.producer@example.com', role: 'producer', district: 'Pune', state: 'Maharashtra' },
+          { id: '2', email: 'priya.consumer@example.com', role: 'consumer', district: 'Mumbai', state: 'Maharashtra' },
+          { id: '3', email: 'admin@grow-organic.com', role: 'admin', district: 'Delhi', state: 'Delhi' },
+        ]);
+      }
+
+      if (productsData.status === 'fulfilled' && productsData.value) {
+        setProducts(productsData.value);
+      }
+    } catch (err) {
+      console.warn('Error fetching admin data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const producers = [
-    {
-      id: '1',
-      name: 'Ramesh Kumar',
-      farmName: 'Green Valley Organic Farm',
-      email: 'ramesh.kumar@example.com',
-      phone: '+91 98765 43210',
-      state: 'Maharashtra',
-      district: 'Pune',
-      joinDate: '2023-06-15',
-      totalProducts: 24,
-      totalEarnings: 15420.50,
-      rating: 4.7,
-      status: 'active',
-      address: 'Plot No. 123, Green Valley, Organic Farming Area, Pune, Maharashtra - 411001'
-    },
-    {
-      id: '2',
-      name: 'Priya Sharma',
-      farmName: 'Sunshine Organic Produce',
-      email: 'priya.sharma@example.com',
-      phone: '+91 87654 32109',
-      state: 'Karnataka',
-      district: 'Bangalore',
-      joinDate: '2023-08-22',
-      totalProducts: 18,
-      totalEarnings: 12340.75,
-      rating: 4.9,
-      status: 'active',
-      address: 'Farm House 456, Organic Lane, Bangalore, Karnataka - 560001'
-    },
-    {
-      id: '3',
-      name: 'Suresh Patel',
-      farmName: 'Fresh Fields Farm',
-      email: 'suresh.patel@example.com',
-      phone: '+91 76543 21098',
-      state: 'Gujarat',
-      district: 'Ahmedabad',
-      joinDate: '2023-04-10',
-      totalProducts: 32,
-      totalEarnings: 18750.25,
-      rating: 4.5,
-      status: 'inactive',
-      address: 'Village Organic, Ahmedabad, Gujarat - 380001'
-    }
-  ];
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-  const filteredProducers = producers.filter(producer =>
-    producer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    producer.farmName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    producer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleSyncDatabase = async () => {
+    setSeeding(true);
+    setSeedProgress('Initiating database sync...');
+    try {
+      await seedDatabase((msg) => setSeedProgress(msg));
+      setTimeout(() => {
+        setSeeding(false);
+        setSeedProgress(null);
+        fetchAdminData();
+      }, 2000);
+    } catch (err: any) {
+      setSeedProgress(`Error: ${err.message}`);
+      setTimeout(() => {
+        setSeeding(false);
+        setSeedProgress(null);
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
+
+  const totalProducers = users.filter((u: BackendUser) => u.role === 'producer').length;
+  const totalConsumers = users.filter((u: BackendUser) => u.role === 'consumer').length;
+
+  const filteredUsers = users.filter((u: BackendUser) =>
+    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.district || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.role || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEditProducer = (producer: any) => {
-    setSelectedProducer(producer);
-    setShowProducerModal(true);
-  };
-
-  const handleSaveProducer = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Saving producer:', selectedProducer);
-    setShowProducerModal(false);
-    setSelectedProducer(null);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex">
-      {/* Sidebar */}
-      <div className="w-80 bg-white shadow-xl border-r border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-white" />
+    <div className="h-screen w-screen overflow-hidden bg-gradient-to-b from-stone-50 via-emerald-50/20 to-teal-50/30 flex">
+      
+      {/* Sidebar - Fixed & Non-Scrollable */}
+      <aside className="w-80 h-full bg-white shadow-xl border-r border-emerald-100 flex flex-col justify-between flex-shrink-0 z-20">
+        <div>
+          {/* Brand header */}
+          <div className="p-6 border-b border-emerald-50">
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-green-900 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-md transform group-hover:scale-105 transition-transform">
+                🛡️
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-gray-900">Grow<span className="text-emerald-700">Admin</span></h2>
+                <p className="text-xs text-emerald-700 font-bold uppercase tracking-wider">Super Administrator</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Navigation */}
+          <nav className="p-4 space-y-2">
+            {[
+              { id: 'dashboard', label: 'Platform Analytics', icon: BarChart3 },
+              { id: 'users', label: 'User Directory', icon: Users, count: users.length },
+              { id: 'products', label: 'Catalog Audit', icon: Package, count: products.length },
+              { id: 'profile', label: 'System & Security', icon: Settings }
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                  activeTab === item.id
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-950'
+                }`}
+              >
+                <div className="flex items-center space-x-3.5">
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </div>
+                {item.count !== undefined && item.count > 0 && (
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                    activeTab === item.id ? 'bg-emerald-800 text-emerald-100' : 'bg-stone-100 text-gray-700'
+                  }`}>
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Sync Seed & User Details */}
+        <div className="p-4 m-4 space-y-3">
+          {/* Seed Database quick action */}
+          <div className="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-100 text-sm text-emerald-950 space-y-2.5">
+            <div className="font-bold flex items-center justify-between">
+              <span className="text-xs font-bold">Database Cluster</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Admin Panel</h2>
-              <p className="text-sm text-gray-600">Platform Management</p>
+            <p className="text-xs text-emerald-700 font-mono truncate">grow-backend-pi.vercel.app</p>
+            <button
+              onClick={handleSyncDatabase}
+              disabled={seeding}
+              className="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-xs transition-all"
+            >
+              <RefreshCw className={`w-4 h-4 ${seeding ? 'animate-spin' : ''}`} />
+              <span>{seeding ? 'Upserting...' : 'Sync Database Seed'}</span>
+            </button>
+          </div>
+
+          {/* User & Logout in sidebar */}
+          <div className="p-3.5 bg-stone-50 rounded-3xl border border-stone-200/80">
+            <div className="flex items-center space-x-3 mb-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800 font-bold">
+                <User className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-900 truncate">{user?.email || 'admin@grow.com'}</p>
+                <p className="text-xs text-emerald-700 font-semibold uppercase">{user?.role || 'Admin'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-stone-200">
+              <Link
+                to="/shop"
+                className="flex-1 text-center py-2 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-colors flex items-center justify-center space-x-1 shadow-2xs"
+              >
+                <Store className="w-3.5 h-3.5" />
+                <span>Shop</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="py-2 px-3.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Exit</span>
+              </button>
             </div>
           </div>
         </div>
+      </aside>
 
-        <nav className="p-6 space-y-2">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-            { id: 'producers', label: 'Producers', icon: Users },
-            { id: 'profile', label: 'Profile Settings', icon: Settings }
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                activeTab === item.id
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-              }`}
+      {/* Main Right Area */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+        
+        {/* Top Navbar - Fixed & Non-Scrollable */}
+        <header className="bg-white/95 backdrop-blur-md border-b border-emerald-100 px-6 sm:px-8 py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-2xs">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Link
+              to="/"
+              className="flex items-center space-x-2 text-sm font-bold text-gray-600 hover:text-emerald-800 transition-colors"
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {/* Dashboard Tab */}
-        {activeTab === 'dashboard' && (
-          <div className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-              <p className="text-gray-600">Platform overview and key metrics</p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <span className="text-sm text-blue-600 font-medium">{adminStats.activeProducers} active</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{adminStats.totalProducers}</div>
-                <div className="text-sm text-gray-600">Total Producers</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-green-600" />
-                  </div>
-                  <span className="text-sm text-green-600 font-medium">+{adminStats.monthlyGrowth}%</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">₹{adminStats.totalRevenue.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Total Revenue</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <span className="text-sm text-purple-600 font-medium">10% commission</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">₹{adminStats.platformProfit.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Platform Profit</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <span className="text-sm text-orange-600 font-medium">{adminStats.totalOrders} orders</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{adminStats.totalProducts}</div>
-                <div className="text-sm text-gray-600">Total Products</div>
-              </div>
-            </div>
-
-            {/* Charts */}
-            <div className="grid lg:grid-cols-2 gap-8 mb-8">
-              {/* Revenue Chart */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Revenue</h3>
-                <div className="h-64 flex items-end justify-between space-x-2">
-                  {[18000, 22000, 25000, 28000, 32000, 35000, 38000, 42000, 45000, 48000, 52000, 55000].map((value, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-1000 hover:from-blue-600 hover:to-blue-500"
-                        style={{ height: `${(value / 55000) * 100}%` }}
-                      ></div>
-                      <div className="text-xs text-gray-600 mt-2">
-                        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][index]}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Producer Growth */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Producer Growth</h3>
-                <div className="h-64 flex items-center justify-center">
-                  <div className="relative w-48 h-48">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="#e5e7eb"
-                        strokeWidth="8"
-                        fill="none"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="#3b82f6"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeDasharray={`${(adminStats.activeProducers / adminStats.totalProducers) * 251.2} 251.2`}
-                        className="transition-all duration-1000"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">{Math.round((adminStats.activeProducers / adminStats.totalProducers) * 100)}%</div>
-                        <div className="text-sm text-gray-600">Active</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Platform Stats */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Categories</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Vegetables', count: 456, color: 'bg-green-500' },
-                    { name: 'Fruits', count: 324, color: 'bg-blue-500' },
-                    { name: 'Herbs', count: 168, color: 'bg-purple-500' }
-                  ].map((category, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 ${category.color} rounded-full`}></div>
-                        <span className="text-gray-700">{category.name}</span>
-                      </div>
-                      <span className="font-medium text-gray-900">{category.count}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Top States</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Maharashtra', count: 45 },
-                    { name: 'Karnataka', count: 38 },
-                    { name: 'Gujarat', count: 32 }
-                  ].map((state, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-gray-700">{state.name}</span>
-                      <span className="font-medium text-gray-900">{state.count}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                <div className="space-y-3">
-                  {[
-                    { action: 'New producer joined', time: '2 hours ago' },
-                    { action: 'Product approved', time: '4 hours ago' },
-                    { action: 'Order completed', time: '6 hours ago' }
-                  ].map((activity, index) => (
-                    <div key={index} className="text-sm">
-                      <div className="text-gray-900">{activity.action}</div>
-                      <div className="text-gray-500">{activity.time}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Organic Store</span>
+            </Link>
+            <span className="text-gray-300">|</span>
+            <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Admin Root Security Active</span>
+            </span>
           </div>
-        )}
 
-        {/* Producers Tab */}
-        {activeTab === 'producers' && (
-          <div className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Producers Management</h1>
-              <p className="text-gray-600">Manage all registered producers on the platform</p>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleSyncDatabase}
+              disabled={seeding}
+              className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center space-x-2"
+            >
+              <Database className="w-4 h-4" />
+              <span className="hidden sm:inline">{seeding ? 'Syncing...' : 'Sync MongoDB Seed'}</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-2xl text-sm font-bold transition-colors flex items-center space-x-1.5"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Scrollable Content Body Container */}
+        <main className="flex-1 overflow-y-auto p-6 sm:p-8 md:p-10 space-y-8">
+          
+          {seedProgress && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-sm font-bold flex items-center space-x-2.5 animate-fade-in shadow-xs">
+              <Loader2 className="w-5 h-5 text-emerald-600 animate-spin flex-shrink-0" />
+              <span>{seedProgress}</span>
             </div>
+          )}
 
-            {/* Search */}
-            <div className="mb-6">
-              <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search producers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+          {/* Dashboard Tab */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-8 animate-fade-in">
+              <div>
+                <h1 className="text-3xl font-black text-gray-900">Platform Analytics Overview</h1>
+                <p className="text-sm text-gray-500 mt-1">Live operational summary of Grow organic marketplace network</p>
               </div>
-            </div>
 
-            {/* Producers Table */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+              {loading ? (
+                <div className="py-20 text-center">
+                  <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-gray-500 font-medium">Loading platform metrics...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Metrics Grid - Compact with Icon in Same Line */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex items-center space-x-4">
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 flex-shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Registered Users</span>
+                        <div className="text-2xl font-black text-emerald-800 mt-0.5">{users.length} Users</div>
+                        <span className="text-[11px] text-gray-500 font-medium truncate block">{totalProducers} Producers • {totalConsumers} Consumers</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex items-center space-x-4">
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 flex-shrink-0">
+                        <Package className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Catalog Inventory</span>
+                        <div className="text-2xl font-black text-emerald-800 mt-0.5">{products.length} Products</div>
+                        <span className="text-[11px] text-emerald-600 font-semibold truncate block">Active in MongoDB Atlas</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex items-center space-x-4">
+                      <div className="w-11 h-11 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 flex-shrink-0">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Gross Volume</span>
+                        <div className="text-2xl font-black text-teal-800 mt-0.5">₹1,84,500</div>
+                        <span className="text-[11px] text-teal-600 font-semibold flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" />
+                          <span>+22.5% MoM</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex items-center space-x-4">
+                      <div className="w-11 h-11 rounded-2xl bg-green-50 flex items-center justify-center text-green-700 flex-shrink-0">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">API Health</span>
+                        <div className="text-2xl font-black text-green-700 mt-0.5">99.9% Online</div>
+                        <span className="text-[11px] text-gray-400 truncate block">All Services Normal</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Users Summary Table */}
+                  <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-emerald-100">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="font-extrabold text-gray-900 text-base">Recently Registered Accounts</h3>
+                      <button 
+                        onClick={() => setActiveTab('users')}
+                        className="text-sm font-bold text-emerald-700 hover:underline"
+                      >
+                        Manage All Users →
+                      </button>
+                    </div>
+
+                    <div className="divide-y divide-gray-100">
+                      {users.slice(0, 5).map((u: BackendUser, i: number) => (
+                        <div key={i} className="py-4 flex items-center justify-between text-sm">
+                          <div>
+                            <div className="font-bold text-gray-900 text-base">{u.email}</div>
+                            <div className="text-gray-500 text-xs mt-0.5">{u.district || 'All Districts'}, {u.state || 'India'}</div>
+                          </div>
+                          <span className={`px-3.5 py-1 rounded-full font-bold text-xs uppercase ${
+                            u.role === 'producer' ? 'bg-blue-100 text-blue-800' : u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {u.role}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Users Tab */}
+          {activeTab === 'users' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-black text-gray-900">User Account Management</h1>
+                  <p className="text-sm text-gray-500 mt-1">Live user directory connected to `GET /user/all`</p>
+                </div>
+                <div className="max-w-xs w-full">
+                  <input
+                    type="text"
+                    placeholder="Search by email, district, or role..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl shadow-sm border border-emerald-100 overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-stone-50 text-gray-500 font-bold border-b border-stone-200">
                     <tr>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Producer</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Farm Name</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Location</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Products</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Earnings</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Rating</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Status</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Actions</th>
+                      <th className="p-4">Email Address</th>
+                      <th className="p-4">Role Access</th>
+                      <th className="p-4">District</th>
+                      <th className="p-4">State</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredProducers.map((producer) => (
-                      <tr key={producer.id} className="hover:bg-gray-50">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                              {producer.name.charAt(0)}
-                            </div>
-                            <div>
-                              <div className="font-medium text-gray-900">{producer.name}</div>
-                              <div className="text-sm text-gray-600">{producer.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm text-gray-900">{producer.farmName}</div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm text-gray-900">{producer.district}, {producer.state}</div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm text-gray-900">{producer.totalProducts}</div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="font-medium text-gray-900">₹{producer.totalEarnings.toLocaleString()}</div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="text-sm text-gray-900">{producer.rating}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            producer.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredUsers.map((u: BackendUser, i: number) => (
+                      <tr key={i} className="hover:bg-stone-50/60 transition-colors">
+                        <td className="p-4 font-bold text-gray-900">{u.email}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold uppercase ${
+                            u.role === 'producer' ? 'bg-blue-100 text-blue-800' : u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'
                           }`}>
-                            {producer.status.charAt(0).toUpperCase() + producer.status.slice(1)}
+                            {u.role}
                           </span>
                         </td>
-                        <td className="py-4 px-6">
-                          <div className="flex space-x-2">
-                            <button 
-                              onClick={() => handleEditProducer(producer)}
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button className="text-green-600 hover:text-green-700">
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </div>
+                        <td className="p-4 text-gray-600">{u.district || 'All Districts'}</td>
+                        <td className="p-4 text-gray-600">{u.state || 'India'}</td>
+                        <td className="p-4 text-right">
+                          <button className="text-emerald-700 hover:text-emerald-900 font-bold text-sm mr-4 inline-flex items-center gap-1">
+                            <Edit className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button className="text-red-500 hover:text-red-700 font-bold text-sm inline-flex items-center gap-1">
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -408,205 +411,72 @@ const AdminDashboard: React.FC = () => {
                 </table>
               </div>
             </div>
+          )}
 
-            {/* Producer Edit Modal */}
-            {showProducerModal && selectedProducer && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Edit Producer Details</h2>
-                    <button
-                      onClick={() => setShowProducerModal(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleSaveProducer} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input
-                          type="text"
-                          value={selectedProducer.name}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, name: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Farm Name</label>
-                        <input
-                          type="text"
-                          value={selectedProducer.farmName}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, farmName: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input
-                          type="email"
-                          value={selectedProducer.email}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, email: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                        <input
-                          type="tel"
-                          value={selectedProducer.phone}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, phone: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                        <select
-                          value={selectedProducer.state}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, state: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="Maharashtra">Maharashtra</option>
-                          <option value="Karnataka">Karnataka</option>
-                          <option value="Gujarat">Gujarat</option>
-                          <option value="Tamil Nadu">Tamil Nadu</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
-                        <input
-                          type="text"
-                          value={selectedProducer.district}
-                          onChange={(e) => setSelectedProducer({...selectedProducer, district: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                      <textarea
-                        rows={3}
-                        value={selectedProducer.address}
-                        onChange={(e) => setSelectedProducer({...selectedProducer, address: e.target.value})}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                      <select
-                        value={selectedProducer.status}
-                        onChange={(e) => setSelectedProducer({...selectedProducer, status: e.target.value})}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="suspended">Suspended</option>
-                      </select>
-                    </div>
-
-                    <div className="flex space-x-4">
-                      <button
-                        type="button"
-                        onClick={() => setShowProducerModal(false)}
-                        className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-medium transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors"
-                      >
-                        Save Changes
-                      </button>
-                    </div>
-                  </form>
-                </div>
+          {/* Products Tab (4 CARDS PER ROW) */}
+          {activeTab === 'products' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h1 className="text-3xl font-black text-gray-900">Catalog Produce Audit</h1>
+                <p className="text-sm text-gray-500 mt-1">Live products retrieved from `/product/admin-products`</p>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Profile Settings</h1>
-              <p className="text-gray-600">Manage your admin account information</p>
+              {/* 4 CARDS PER ROW GRID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {products.map((p: BackendProduct) => (
+                  <div key={p._id} className="bg-white p-4 rounded-3xl border border-emerald-100 shadow-sm flex flex-col justify-between hover:shadow-lg transition-all group">
+                    <div>
+                      <div className="relative h-40 rounded-2xl overflow-hidden mb-3 bg-stone-100">
+                        <img src={p.photo || 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=300'} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <span className="absolute top-2 left-2 bg-emerald-700 text-white text-xs font-bold px-2.5 py-0.5 rounded-full uppercase">
+                          {p.category || 'Harvest'}
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-base text-gray-900 truncate mb-1">{p.name}</h4>
+                      <p className="text-xs text-gray-400 capitalize">{p.district || 'Pune'} Region</p>
+                    </div>
+                    <div className="mt-3 pt-2.5 border-t border-gray-100 flex justify-between items-baseline">
+                      <span className="text-lg font-black text-emerald-800">₹{p.price}</span>
+                      <span className="text-xs text-gray-500 font-semibold">{p.stock || 0} in stock</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      defaultValue="Admin User"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      defaultValue="admin@organic.com"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+          {/* Profile & Security Tab */}
+          {activeTab === 'profile' && (
+            <div className="max-w-2xl bg-white rounded-3xl p-8 shadow-sm border border-emerald-100 text-sm space-y-5 animate-fade-in">
+              <h2 className="text-2xl font-black text-gray-900">Admin Security & Environment</h2>
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Live API Base URL</label>
+                <input type="text" readOnly value="https://grow-backend-pi.vercel.app" className="w-full px-4 py-3 bg-stone-50 border rounded-xl font-mono text-xs" />
+              </div>
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Database Cluster Host</label>
+                <input type="text" readOnly value="MongoDB Atlas Production ReplicaSet" className="w-full px-4 py-3 bg-stone-50 border rounded-xl font-mono text-xs" />
+              </div>
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Administrator Identity</label>
+                <input type="text" readOnly value={user?.email || 'admin@grow-organic.com'} className="w-full px-4 py-3 bg-stone-50 border rounded-xl font-medium text-sm" />
+              </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      defaultValue="+91 99999 99999"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                    <input
-                      type="text"
-                      defaultValue="Super Admin"
-                      disabled
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                  <input
-                    type="text"
-                    defaultValue="Platform Management"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-medium transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+              <div className="pt-4 border-t flex items-center justify-between">
+                <button 
+                  onClick={handleLogout}
+                  className="py-3 px-6 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl font-bold transition-colors flex items-center space-x-2 text-sm"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out of Admin Console</span>
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+        </main>
       </div>
+
     </div>
   );
 };

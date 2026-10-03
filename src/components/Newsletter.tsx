@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Send, Gift, Bell, Leaf } from 'lucide-react';
+import { Mail, Gift, Bell, Leaf, Send } from 'lucide-react';
 
 const Newsletter: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -49,13 +49,13 @@ const Newsletter: React.FC = () => {
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
               <Mail className="w-10 h-10 text-white" />
             </div>
-            
+
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
               Stay Updated with Fresh Deals
             </h2>
-            
+
             <p className="text-xl text-green-100 max-w-3xl mx-auto leading-relaxed">
-              Subscribe to our newsletter and be the first to know about new products, 
+              Subscribe to our newsletter and be the first to know about new products,
               special offers, and healthy living tips delivered straight to your inbox.
             </p>
           </div>

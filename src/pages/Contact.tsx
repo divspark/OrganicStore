@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, User, MessageSquare, Building } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, User, Building, MessageSquare } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ const Contact: React.FC = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-      
+
       // Reset form after 3 seconds
       setTimeout(() => {
         setIsSubmitted(false);
@@ -90,7 +90,7 @@ const Contact: React.FC = () => {
               Get in Touch
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Have questions about our organic products? Need help with your order? 
+              Have questions about our organic products? Need help with your order?
               We're here to help and would love to hear from you.
             </p>
           </div>
@@ -101,7 +101,7 @@ const Contact: React.FC = () => {
         {/* Contact Info Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {contactInfo.map((info, index) => (
-            <div 
+            <div
               key={index}
               className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center hover:shadow-xl transition-all duration-300 group"
             >
@@ -124,7 +124,7 @@ const Contact: React.FC = () => {
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Send us a Message</h2>
               <p className="text-gray-600">
-                Fill out the form below and we'll get back to you as soon as possible. 
+                Fill out the form below and we'll get back to you as soon as possible.
                 All messages are sent directly to our team at divyansh2004mhj@gmail.com.
               </p>
             </div>
@@ -138,7 +138,8 @@ const Contact: React.FC = () => {
                       Full Name *
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <User
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="text"
                         id="name"
@@ -280,7 +281,7 @@ const Contact: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">Message Sent Successfully!</h3>
                 <p className="text-gray-600 mb-6">
-                  Thank you for contacting us. We've received your message and will get back to you 
+                  Thank you for contacting us. We've received your message and will get back to you
                   at <strong>divyansh2004mhj@gmail.com</strong> within 24 hours.
                 </p>
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4">

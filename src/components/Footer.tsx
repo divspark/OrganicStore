@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Twitter, Instagram, Youtube, Phone, Mail, MapPin, Leaf, Clock, CreditCard, Truck } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, Phone, Mail, MapPin, Leaf, Clock, Truck, CreditCard } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const quickLinks = [
@@ -62,13 +62,13 @@ const Footer: React.FC = () => {
                 <div className="text-sm text-green-400 -mt-1">Fresh & Natural</div>
               </div>
             </div>
-            
+
             <p className="text-gray-400 leading-relaxed text-lg max-w-md">
-              Your trusted source for fresh, organic, and healthy food products. 
-              We're committed to bringing you the finest quality produce from 
+              Your trusted source for fresh, organic, and healthy food products.
+              We're committed to bringing you the finest quality produce from
               certified organic farms across the country.
             </p>
-            
+
             {/* Contact Info */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
@@ -78,12 +78,12 @@ const Footer: React.FC = () => {
                   Mumbai, Maharashtra 400001
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <div className="text-gray-400">+91 98765 43210</div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <div className="text-gray-400">info@organic.com</div>
@@ -93,9 +93,9 @@ const Footer: React.FC = () => {
             {/* Social Links */}
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
-                <a 
+                <a
                   key={index}
-                  href={social.href} 
+                  href={social.href}
                   className={`w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${social.color}`}
                 >
                   <social.icon className="w-5 h-5" />
@@ -110,8 +110,8 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
-                    href={link.href} 
+                  <a
+                    href={link.href}
                     className="text-gray-400 hover:text-green-400 transition-colors duration-300 flex items-center group"
                   >
                     <span className="w-0 h-0.5 bg-green-400 transition-all duration-300 group-hover:w-4 mr-0 group-hover:mr-2"></span>
@@ -128,8 +128,8 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               {categories.map((category, index) => (
                 <li key={index}>
-                  <a 
-                    href={category.href} 
+                  <a
+                    href={category.href}
                     className="text-gray-400 hover:text-green-400 transition-colors duration-300 flex items-center group"
                   >
                     <span className="w-0 h-0.5 bg-green-400 transition-all duration-300 group-hover:w-4 mr-0 group-hover:mr-2"></span>
@@ -146,8 +146,8 @@ const Footer: React.FC = () => {
             <ul className="space-y-4 mb-8">
               {customerService.map((service, index) => (
                 <li key={index}>
-                  <a 
-                    href={service.href} 
+                  <a
+                    href={service.href}
                     className="text-gray-400 hover:text-green-400 transition-colors duration-300 flex items-center group"
                   >
                     <span className="w-0 h-0.5 bg-green-400 transition-all duration-300 group-hover:w-4 mr-0 group-hover:mr-2"></span>
@@ -183,7 +183,7 @@ const Footer: React.FC = () => {
                 <div className="text-sm text-gray-400">On orders over ₹500</div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
                 <CreditCard className="w-6 h-6 text-white" />
@@ -193,7 +193,7 @@ const Footer: React.FC = () => {
                 <div className="text-sm text-gray-400">100% protected</div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-white" />
@@ -214,7 +214,7 @@ const Footer: React.FC = () => {
             <div className="text-gray-400 text-center lg:text-left">
               © 2024 Organic Store. All rights reserved. Made with ❤️ for healthy living.
             </div>
-            
+
             <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-8">
               {/* Payment Methods */}
               <div className="flex items-center space-x-4">
@@ -223,46 +223,46 @@ const Footer: React.FC = () => {
                   {/* Visa */}
                   <div className="bg-white rounded-lg p-2 w-12 h-8 flex items-center justify-center shadow-sm">
                     <svg viewBox="0 0 40 24" className="w-8 h-5">
-                      <path fill="#1A1F71" d="M18.5 8.5l-2.8 7h-1.7l-1.4-5.4c-.1-.4-.2-.5-.5-.7-.5-.3-1.3-.6-2-.8l.1-.1h3.4c.4 0 .8.3.9.7l.8 4.2 2-4.9h1.7zm6.8 4.7c0-1.8-2.5-1.9-2.5-2.7 0-.2.2-.5.7-.6.2 0 1.1-.1 2 .4l.4-1.6c-.5-.2-1.1-.4-1.9-.4-2 0-3.4 1.1-3.4 2.6 0 1.1 1 1.8 1.8 2.1.8.4 1.1.6 1.1 1 0 .6-.7.8-1.4.8-.9 0-1.4-.2-2.2-.6l-.4 1.7c.5.2 1.4.4 2.4.4 2.1 0 3.5-1 3.5-2.6zm5.4 2.3h1.5l-1.3-7h-1.4c-.3 0-.6.2-.7.5l-2.5 6.5h2.1l.4-1.1h2.5l.2 1.1zm-2.2-2.4l1-2.9.6 2.9h-1.6zm-9.5-4.6l-1.3 7h-2l1.3-7h2z"/>
-                      <path fill="#007DBC" d="M18.5 8.5l-2.8 7h-1.7l-1.4-5.4c-.1-.4-.2-.5-.5-.7-.5-.3-1.3-.6-2-.8l.1-.1h3.4c.4 0 .8.3.9.7l.8 4.2 2-4.9h1.7z"/>
+                      <path fill="#1A1F71" d="M18.5 8.5l-2.8 7h-1.7l-1.4-5.4c-.1-.4-.2-.5-.5-.7-.5-.3-1.3-.6-2-.8l.1-.1h3.4c.4 0 .8.3.9.7l.8 4.2 2-4.9h1.7zm6.8 4.7c0-1.8-2.5-1.9-2.5-2.7 0-.2.2-.5.7-.6.2 0 1.1-.1 2 .4l.4-1.6c-.5-.2-1.1-.4-1.9-.4-2 0-3.4 1.1-3.4 2.6 0 1.1 1 1.8 1.8 2.1.8.4 1.1.6 1.1 1 0 .6-.7.8-1.4.8-.9 0-1.4-.2-2.2-.6l-.4 1.7c.5.2 1.4.4 2.4.4 2.1 0 3.5-1 3.5-2.6zm5.4 2.3h1.5l-1.3-7h-1.4c-.3 0-.6.2-.7.5l-2.5 6.5h2.1l.4-1.1h2.5l.2 1.1zm-2.2-2.4l1-2.9.6 2.9h-1.6zm-9.5-4.6l-1.3 7h-2l1.3-7h2z" />
+                      <path fill="#007DBC" d="M18.5 8.5l-2.8 7h-1.7l-1.4-5.4c-.1-.4-.2-.5-.5-.7-.5-.3-1.3-.6-2-.8l.1-.1h3.4c.4 0 .8.3.9.7l.8 4.2 2-4.9h1.7z" />
                     </svg>
                   </div>
-                  
+
                   {/* Mastercard */}
                   <div className="bg-white rounded-lg p-2 w-12 h-8 flex items-center justify-center shadow-sm">
                     <svg viewBox="0 0 40 24" className="w-8 h-5">
-                      <circle cx="15" cy="12" r="7" fill="#EB001B"/>
-                      <circle cx="25" cy="12" r="7" fill="#F79E1B"/>
-                      <path fill="#FF5F00" d="M22 12c0-2.4-1.2-4.5-3-5.7-1.8 1.2-3 3.3-3 5.7s1.2 4.5 3 5.7c1.8-1.2 3-3.3 3-5.7z"/>
+                      <circle cx="15" cy="12" r="7" fill="#EB001B" />
+                      <circle cx="25" cy="12" r="7" fill="#F79E1B" />
+                      <path fill="#FF5F00" d="M22 12c0-2.4-1.2-4.5-3-5.7-1.8 1.2-3 3.3-3 5.7s1.2 4.5 3 5.7c1.8-1.2 3-3.3 3-5.7z" />
                     </svg>
                   </div>
-                  
+
                   {/* PayPal */}
                   <div className="bg-white rounded-lg p-2 w-12 h-8 flex items-center justify-center shadow-sm">
                     <svg viewBox="0 0 40 24" className="w-8 h-5">
-                      <path fill="#003087" d="M8 6h7c3 0 5 2 5 5s-2 5-5 5h-3l-1 4H8l3-14z"/>
-                      <path fill="#009CDE" d="M13 10h7c3 0 5 2 5 5s-2 5-5 5h-3l-1 4h-3l3-14z"/>
+                      <path fill="#003087" d="M8 6h7c3 0 5 2 5 5s-2 5-5 5h-3l-1 4H8l3-14z" />
+                      <path fill="#009CDE" d="M13 10h7c3 0 5 2 5 5s-2 5-5 5h-3l-1 4h-3l3-14z" />
                     </svg>
                   </div>
-                  
+
                   {/* UPI */}
                   <div className="bg-white rounded-lg p-2 w-12 h-8 flex items-center justify-center shadow-sm">
                     <svg viewBox="0 0 40 24" className="w-8 h-5">
-                      <rect width="40" height="24" fill="#097939" rx="4"/>
+                      <rect width="40" height="24" fill="#097939" rx="4" />
                       <text x="20" y="15" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">UPI</text>
                     </svg>
                   </div>
-                  
+
                   {/* Razorpay */}
                   <div className="bg-white rounded-lg p-2 w-12 h-8 flex items-center justify-center shadow-sm">
                     <svg viewBox="0 0 40 24" className="w-8 h-5">
-                      <rect width="40" height="24" fill="#3395FF" rx="4"/>
-                      <path fill="white" d="M8 8h4l-2 8h-2l2-8zm6 0h2l-1 4h2l1-4h2l-2 8h-2l1-4h-2l-1 4h-2l2-8zm8 0h4c1 0 2 1 2 2l-1 2c0 1-1 2-2 2h-2l-1 2h-2l2-8zm2 2l-1 2h2l1-2h-2z"/>
+                      <rect width="40" height="24" fill="#3395FF" rx="4" />
+                      <path fill="white" d="M8 8h4l-2 8h-2l2-8zm6 0h2l-1 4h2l1-4h2l-2 8h-2l1-4h-2l-1 4h-2l2-8zm8 0h4c1 0 2 1 2 2l-1 2c0 1-1 2-2 2h-2l-1 2h-2l2-8zm2 2l-1 2h2l1-2h-2z" />
                     </svg>
                   </div>
                 </div>
               </div>
-              
+
               {/* Legal Links */}
               <div className="flex space-x-6 text-sm">
                 <a href="#" className="text-gray-400 hover:text-green-400 transition-colors">Privacy Policy</a>

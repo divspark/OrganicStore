@@ -8,10 +8,11 @@ import Wishlist from '../pages/Wishlist';
 import ProductList from '../pages/ProductList';
 import Blog from '../pages/Blog';
 import Contact from '../pages/Contact';
-// import ErrorPage from '../pages/ErrorPage'; // fallback error
 import ProductDetail from '../components/ProductDetail';
 import AdminDashboard from '../pages/AdminDashboard';
 import ProducerDashboard from '../pages/ProducerDashboard';
+import SmartBite from '../pages/SmartBite';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -22,13 +23,43 @@ const router = createBrowserRouter([
       { path: '/wishlist', element: <Wishlist /> },
       { path: '/shop', element: <ProductList /> },
       { path: '/product/:id', element: <ProductDetail /> },
+      { path: '/smartbite', element: <SmartBite /> },
       { path: '/blog', element: <Blog /> },
       { path: '/contact', element: <Contact /> },
     ],
-    // errorElement: <ErrorPage />,
   },
-  { path: '/admin/dasboard', element: <AdminDashboard /> },
-  { path: '/producer/dasboard', element: <ProducerDashboard /> },
+  {
+    path: '/admin/dashboard',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/dasboard',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/producer/dashboard',
+    element: (
+      <ProtectedRoute allowedRoles={['producer']}>
+        <ProducerDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/producer/dasboard',
+    element: (
+      <ProtectedRoute allowedRoles={['producer']}>
+        <ProducerDashboard />
+      </ProtectedRoute>
+    ),
+  },
   { path: '/login', element: <Login /> },
   { path: '/signup', element: <Signup /> },
 ]);
@@ -36,3 +67,4 @@ const router = createBrowserRouter([
 export default function AppRouter() {
   return <RouterProvider router={router} />;
 }
+

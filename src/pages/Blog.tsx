@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, User, Clock, ArrowRight, Search, Tag, Heart, Share2, Eye } from 'lucide-react';
+import { Calendar, User, Clock, ArrowRight, Search, Heart, Eye } from 'lucide-react';
 
 interface BlogPost {
   id: string;
@@ -112,8 +112,8 @@ const Blog: React.FC = () => {
   const filteredPosts = blogPosts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -129,7 +129,7 @@ const Blog: React.FC = () => {
               Organic Living Blog
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Discover the latest insights on organic living, healthy recipes, farming practices, 
+              Discover the latest insights on organic living, healthy recipes, farming practices,
               and tips for a more sustainable lifestyle.
             </p>
           </div>
@@ -157,8 +157,8 @@ const Blog: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
             <div className="grid lg:grid-cols-2 gap-0">
               <div className="relative h-64 lg:h-auto">
-                <img 
-                  src={featuredPost.image} 
+                <img
+                  src={featuredPost.image}
                   alt={featuredPost.title}
                   className="w-full h-full object-cover"
                 />
@@ -210,11 +210,10 @@ const Blog: React.FC = () => {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-                  selectedCategory === category
+                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === category
                     ? 'bg-green-600 text-white shadow-lg'
                     : 'bg-white text-gray-600 hover:bg-green-50 hover:text-green-600 shadow-sm hover:shadow-md border border-gray-200'
-                }`}
+                  }`}
               >
                 {category}
               </button>
@@ -225,13 +224,13 @@ const Blog: React.FC = () => {
         {/* Blog Posts Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {filteredPosts.slice(1).map((post) => (
-            <article 
+            <article
               key={post.id}
               className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
             >
               <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={post.image} 
+                <img
+                  src={post.image}
                   alt={post.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -239,7 +238,7 @@ const Blog: React.FC = () => {
                   {post.category}
                 </div>
               </div>
-              
+
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
                   <div className="flex items-center">
@@ -251,15 +250,15 @@ const Blog: React.FC = () => {
                     {post.readTime}
                   </div>
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors leading-tight">
                   {post.title}
                 </h3>
-                
+
                 <p className="text-gray-600 mb-4 leading-relaxed">
                   {post.excerpt}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
                     <div className="flex items-center">
@@ -276,11 +275,11 @@ const Blog: React.FC = () => {
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </div>
-                
+
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
                   {post.tags.slice(0, 3).map((tag) => (
-                    <span 
+                    <span
                       key={tag}
                       className="bg-gray-100 text-gray-600 px-2 py-1 rounded-lg text-xs font-medium hover:bg-green-100 hover:text-green-600 transition-colors cursor-pointer"
                     >
@@ -297,7 +296,7 @@ const Blog: React.FC = () => {
         <div className="bg-gradient-to-r from-green-600 to-emerald-700 rounded-3xl p-12 text-center text-white">
           <h3 className="text-3xl font-bold mb-4">Stay Updated with Our Blog</h3>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Get the latest articles on organic living, healthy recipes, and sustainable farming 
+            Get the latest articles on organic living, healthy recipes, and sustainable farming
             delivered straight to your inbox.
           </p>
           <div className="max-w-md mx-auto flex space-x-4">

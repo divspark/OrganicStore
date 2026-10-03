@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, ShoppingCart, X, Star, ArrowLeft, Filter, Grid, List } from 'lucide-react';
+import { Heart, ShoppingCart, X, Star, ArrowLeft, Grid, List } from 'lucide-react';
+import { useGrowStore } from '../store/useGrowStore';
 
 interface WishlistItem {
   id: string;
@@ -57,19 +58,27 @@ const Wishlist: React.FC = () => {
   ]);
 
   const [viewMode, setViewMode] = useState('grid');
+  const addToCartStore = useGrowStore((state) => state.addToCart);
 
   const removeFromWishlist = (id: string) => {
     setWishlistItems(items => items.filter(item => item.id !== id));
   };
 
-  const addToCart = (id: string) => {
-    console.log(`Added item ${id} to cart`);
-    // You can add cart logic here
+  const handleAddToCart = (item: WishlistItem) => {
+    addToCartStore({
+      _id: item.id,
+      name: item.name,
+      price: item.price,
+      originalPrice: item.originalPrice,
+      photo: item.image,
+      stock: item.stock,
+      category: item.category,
+      rating: item.rating
+    });
   };
 
   const addAllToCart = () => {
-    wishlistItems.forEach(item => addToCart(item.id));
-    console.log('Added all wishlist items to cart');
+    wishlistItems.forEach(item => handleAddToCart(item));
   };
 
   const clearWishlist = () => {
@@ -236,7 +245,7 @@ const Wishlist: React.FC = () => {
                     {/* Actions */}
                     <div className="space-y-3">
                       <button
-                        onClick={() => addToCart(item.id)}
+                        onClick={() => handleAddToCart(item)}
                         disabled={item.stock === 0}
                         className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
                           item.stock > 0 

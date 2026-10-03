@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Leaf, Star, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Leaf, ChevronLeft, ChevronRight, Shield, Star } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -54,9 +54,8 @@ const Hero: React.FC = () => {
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
           >
             {/* Background Image */}
             <div className="absolute inset-0">
@@ -79,7 +78,7 @@ const Hero: React.FC = () => {
                     <Leaf className="w-5 h-5" />
                     <span className="text-sm font-semibold">{slide.offer}</span>
                   </div>
-                  
+
                   {/* Main Heading */}
                   <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-6 animate-slide-in-left">
                     {slide.title}
@@ -87,12 +86,12 @@ const Hero: React.FC = () => {
                       {slide.subtitle}
                     </span>
                   </h1>
-                  
+
                   {/* Description */}
                   <p className="text-xl text-gray-200 mb-8 leading-relaxed max-w-lg animate-slide-in-right">
                     {slide.description}
                   </p>
-                  
+
                   {/* CTA Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 mb-12">
                     <button className="group bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3">
@@ -129,7 +128,7 @@ const Hero: React.FC = () => {
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
-      
+
       <button
         onClick={nextSlide}
         className="absolute right-6 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 z-20"
@@ -143,11 +142,10 @@ const Hero: React.FC = () => {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentSlide 
-                ? 'bg-green-400 w-8' 
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                ? 'bg-green-400 w-8'
                 : 'bg-white/50 hover:bg-white/70'
-            }`}
+              }`}
           />
         ))}
       </div>
